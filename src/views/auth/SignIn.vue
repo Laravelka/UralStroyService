@@ -15,7 +15,7 @@
 									autocomplete="email"
 									autocorrect="on"
 									placeholder="Введите e-mail"
-									v-model="form.email"
+									v-model="formRef.email"
 								></ion-input>
 							</ion-item>
 							<ion-item class="item-style-bottom" lines="full">
@@ -27,7 +27,7 @@
 									autocomplete="current-password"
 									autocorrect="on"
 									placeholder="Введите пароль"
-									v-model="form.password"
+									v-model="formRef.password"
 								></ion-input>
 							</ion-item>
 							<div class="padding-top-large ion-text-center">
@@ -114,15 +114,13 @@
 			IonToast,
 
 		},
-		data: () => ({
-			form: {
-				email: "",
-				password: ""
-			}
-		}),
 		setup() {
 			const router = useRouter();
 
+			const formRef = ref<any|null>({
+				email: "",
+				password: ""
+			});
 			const isOpenRef    = ref(false);
 			const messageRef   = ref('');
 			const isPressedRef = ref(false);
@@ -134,22 +132,45 @@
 			const signIn = () => {
 				setPressed(true);
 
-				axios.post('/sanctum/signin').then(response => {
-					if (response.data.message) {
-						setMessage(response.data.message[0]);
+				axios.post('/sanctum/signin', formRef.value).then(response => {
+					const { data } = response;
+					
+					localStorage.setItem('user', JSON.stringify(data.user));
+					localStorage.setItem('authToken', data.token);
+
+					axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+
+					if (data.message) {
+						setMessage(data.message);
 						setOpen(true);
 					}
 					setPressed(false);
+					setTimeout(() => {
+						router.push({name: 'News'});
+					}, 2000);
 				}).catch(error => {
 					const { response } = error;
 
-					if (response.data.message) {
-						setMessage(response.data.message[0]);
+					if (response && response.data.message) {
 						setOpen(true);
+						setMessage(response.data.message);
+					} else if (response && response.data.messages) {
+						let i = 0;
+						let message = '';
+						
+						for (const key in response.data.messages) {
+							if (i == 0) message = response.data.messages[key][0];
+							i++;
+						}
+						setMessage(message);
+						setOpen(true);
+					} else if (error) {
+						setOpen(true);
+						setMessage(error.message);
 					}
 					setPressed(false);
 
-					console.error('response:', response);
+					console.error('Error:', error);
 				});
 			};
 
@@ -157,6 +178,7 @@
 				router,
 				signIn,
 				setOpen,
+				formRef,
 				isOpenRef,
 				messageRef,
 				setMessage,

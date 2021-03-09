@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import Tabs from '../views/Tabs.vue'
+import Tabs from '@/views/Tabs.vue';
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -29,35 +29,59 @@ const routes: Array<RouteRecordRaw> = [
 	},
 	{
 		path: '/tabs/',
+		meta: {
+			auth: true
+		},
 		component: Tabs,
 		children: [
 			{
 				path: '',
-				redirect: '/tabs/profile'
+				redirect: '/tabs/news'
 			},
 			{
 				path: 'news',
+				name: 'News',
 				component: () => import('@/views/News.vue')
 			},
 			{
 				path: 'profile',
+				name: 'Profile',
 				component: () => import('@/views/Profile.vue')
 			},
 			{
 				path: 'add',
-				component: () => import('@/views/AddApplication.vue')
+				name: 'Add',
+				component: () => import('@/views/AddApplication.vue'),
+			},
+			{
+				path: 'add/:id',
+				name: 'AddSelectMaster',
+				component: () => import('@/views/AddApplication.vue'),
 			},
 			{
 				path: 'myUK',
+				name: 'MyUK',
 				component: () => import('@/views/MyUK.vue')
 			}
 		]
 	}
-]
+];
 
 const router = createRouter({
 	history: createWebHistory(process.env.BASE_URL),
 	routes
-})
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+	const token = localStorage.getItem('authToken');
+
+	if (to.meta.auth && token === null) {
+		next({name: 'SignIn'});
+	} else if (to.meta.auth == false && token !== null) {
+		next({name: 'News'});
+	} else {
+		next();
+	}
+});
+
+export default router;

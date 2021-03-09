@@ -26,11 +26,13 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+const token = localStorage.getItem('authToken');
+
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "https://app.ural-stroy-service.ru/api/";
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['Authorization'] = 'Bearer null';
+axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 const app = createApp(App)
 	.use(IonicVue)
@@ -38,5 +40,20 @@ const app = createApp(App)
 	.use(VueAxios, axios);
 
 router.isReady().then(() => {
+	axios.interceptors.response.use(function (response) {
+		return response;
+	}, function (error) {
+		const { response } = error;
+		
+		if (response && response.status == 401) {
+			localStorage.removeItem('user');
+			localStorage.removeItem('authToken');
+
+			router.replace({name: 'SignIn'});
+		} else if (error.message) {
+			console.warn(JSON.stringify(error))
+		}
+		return Promise.reject(error);
+	});
 	app.mount('#app');
 });

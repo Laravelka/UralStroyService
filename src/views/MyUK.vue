@@ -1,10 +1,10 @@
 <template>
 	<ion-page>
 		<Header title="Моя УК">
-			<ion-list>
-				<ion-card>
+			<ion-card>
+				<ion-list>
 					<svg class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Фото УК" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Фото УК</text></svg>
-					<ion-item lines="none">
+					<ion-item lines="full">
 						<ion-label>
 							<p>
 								<ion-icon slot="start" class="icon-position" :icon="location"></ion-icon>
@@ -20,25 +20,21 @@
 							</p>
 						</ion-label>
 					</ion-item>
-				</ion-card>
-				<ion-card>
-					<ion-item lines="none" href="/tabs/news">
+					<ion-item style="padding: 0" lines="full" href="/tabs/news">
 						Написать УК
 					</ion-item>
-				</ion-card>
-				<ion-card>
 					<ion-item lines="none" href="/typeUk">
 						Новости
 					</ion-item>
-				</ion-card>
-			</ion-list>
+				</ion-list>
+			</ion-card>
 		</Header>
 	</ion-page>
 </template>
 
 <script lang="ts">
 	import {
-		IonCard,
+		// IonCard,
 		IonPage,
 		IonList,
 		IonItem,
@@ -57,7 +53,7 @@
 			IonPage,
 			IonList,
 			IonItem,
-			IonCard,
+			// IonCard,
 			IonLabel,
 			IonIcon,
 			Header,
@@ -78,7 +74,7 @@
 	}
 
 	ion-item {
-		padding: 4px;
+		padding: 1px 0;
 		--background: #fff!important;
 	}
 
@@ -102,5 +98,9 @@
 	.img-fluid {
 		max-width: 100%;
 		height: auto;
+	}
+
+	ion-card .list-md {
+		padding: 0;
 	}
 </style>

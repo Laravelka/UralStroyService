@@ -306,9 +306,29 @@ ion-tab-bar {
 	margin: 0 auto;
 	--border: 0;
 	height: 56px;
+	--background: transparent;
+}
+
+ion-tab-bar:before {
+	box-shadow: 0 370px 0 300px white;
+	position: absolute;
+	margin-top: -30px;
+	padding: 63.5px;
+	border-radius: 100%;
+	content: '';
+}
+
+.md ion-tab-bar:before {
+	box-shadow: 0 370px 0 300px white;
+	position: absolute;
+	margin-top: -30px;
+	padding: 69px;
+	border-radius: 100%;
+	content: '';
 }
 
 ion-tab-button {
+	--background: white;
 	--color: var(--ion-color-medium);
 	--color-selected: var(--ion-color-krayola);
 }
@@ -329,6 +349,7 @@ ion-tab-button.tab-selected::before {
 
 ion-tab-button#tab-button-add {
 	--color: #dbdde8;
+	--background: transparent;
 	--color-selected: #ffffff;
 }
 
@@ -340,9 +361,35 @@ ion-tab-button#tab-button-add::before {
 	display: none;
 }
 
+ion-tab-button.left-tab {
+	border-radius: 0 50% 0 0;
+}
+
+.md ion-tab-button.left-tab {
+	border-radius: 0 40% 0 0;
+}
+
+ion-tab-button.right-tab {
+	border-radius: 50% 0 0 0;
+}
+
+.md ion-tab-button.right-tab {
+	border-radius: 40% 0 0 0;
+}
+
 .round {
 	background: #829ba0;
 	padding: 8.5px;
 	border-radius: 25px;
+	width: 50px;
+	height: 50px;
 }
 
+.tabs-inner {
+	position: unset!important;
+	contain: size style!important;
+}
+
+ion-button.ion-btn-round {
+	border-radius: 10px;
+}
