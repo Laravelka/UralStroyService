@@ -12,9 +12,9 @@
 	<ion-content :fullscreen="true" class="ion-padding-horizontal text-content">
 		<h1>{{ dataModal.title }}</h1>
 		<div
-			v-if="dataModal.img"
+			v-if="dataModal.image"
 			class="card-image"
-			:style="{backgroundImage: 'url(' + dataModal.img + ')'}"
+			:style="{backgroundImage: 'url(' + dataModal.image + ')'}"
 		></div>
 		<p color="muted" style="padding-left: 10px;">
 			<small>{{ dataModal.time }}</small>

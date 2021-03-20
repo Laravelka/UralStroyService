@@ -25,7 +25,11 @@
 					</ion-card>
 					<ion-card class="custom-card">
 						<ion-item lines="none">
-							<ion-icon color="success" :icon="checkmarkCircleOutline" slot="start"></ion-icon>
+							<template v-if="userRef.phone && userRef.address">
+								<ion-icon color="success" :icon="checkmarkCircleOutline" slot="start"></ion-icon>
+							</template>
+							<ion-icon v-else color="medium" :icon="ellipseOutline" slot="start"></ion-icon>
+
 							<ion-label>Мои контакты</ion-label>
 							<span v-if="collapsesRef[1]">
 								<ion-icon size="large" @click="setCollapse(1, !collapsesRef[1])" :icon="chevronUpOutline" slot="end"></ion-icon>
@@ -33,7 +37,24 @@
 							<ion-icon v-else @click="setCollapse(1, !collapsesRef[1])" :icon="ellipsisHorizontal" slot="end"></ion-icon>
 						</ion-item>
 						<div v-bind:class="{collapse: true, show: collapsesRef[1]}">
-							<ion-item lines="none">
+							<div v-if="isEdit">
+								<ion-item lines="none">
+									<ion-label position="stacked">Имя и фамилия</ion-label>
+									<ion-input v-model="userRef.name" placeholder="Введите имя и фамилию"></ion-input>
+								</ion-item>
+								<ion-item lines="none">
+									<ion-label position="stacked">Телефон</ion-label>
+									<ion-input v-model="userRef.phone" placeholder="Введите телефон"></ion-input>
+								</ion-item>
+								<ion-item lines="none">
+									<ion-label position="stacked">Адрес</ion-label>
+									<ion-input v-model="userRef.address" placeholder="Введите адрес"></ion-input>
+								</ion-item>
+								<div class="ion-padding">
+									<ion-button shape="round" expand="full" color="krayola" @click="setCollapse(1, !collapsesRef[1]), setCollapse(2, true), isEdit = false">Далее</ion-button>
+								</div>
+							</div>
+							<ion-item v-else lines="none">
 								<ion-label>
 									<h2>{{ userRef.name }}</h2>
 									<p>ID: {{ userRef.id }}</p>
@@ -46,13 +67,16 @@
 										{{ userRef.phone ?? 'Не указан' }}
 									</p>
 								</ion-label>
-								<ion-note slot="end">ред.</ion-note>
+								<ion-note slot="end" @click="isEdit = !isEdit">ред.</ion-note>
 							</ion-item>
 						</div>
 					</ion-card>
 					<ion-card class="custom-card">
 						<ion-item lines="none">
-							<ion-icon color="medium" :icon="ellipseOutline" slot="start"></ion-icon>
+							<template v-if="userRef.phone && userRef.address">
+								<ion-icon color="success" :icon="checkmarkCircleOutline" slot="start"></ion-icon>
+							</template>
+							<ion-icon v-else color="medium" :icon="ellipseOutline" slot="start"></ion-icon>
 							<ion-label>Основная информация</ion-label>
 							<span v-if="collapsesRef[2]">
 								<ion-icon size="large" @click="setCollapse(2, !collapsesRef[2])" :icon="chevronUpOutline" slot="end"></ion-icon>
@@ -88,14 +112,14 @@
 							</ion-item>
 							<ion-item lines="none">
 								<ion-label position="stacked">Комментарий</ion-label>
-								<ion-textarea placeholder="Опишите вашу проблему вкратце..."></ion-textarea>
+								<ion-textarea v-model="commentRef" placeholder="Опишите вашу проблему вкратце..."></ion-textarea>
 							</ion-item>
 							<div class="ion-padding">
-								<ion-button shape="round" expand="full" color="krayola">Далее</ion-button>
+								<ion-button shape="round" expand="full" color="krayola" @click="makeRequest">Оформить заявку</ion-button>
 							</div>
 						</div>
 					</ion-card>
-					<ion-card class="custom-card">
+					<ion-card v-if="false" class="custom-card">
 						<ion-item lines="none">
 							<ion-icon color="medium" :icon="ellipseOutline" slot="start"></ion-icon>
 							<ion-label>Заявка оформлена</ion-label>
@@ -136,6 +160,14 @@
 					</ion-col>
 				</ion-row>
 			</ion-grid>
+			<ion-toast
+				:color="isErrorRef ? 'danger' : 'success'"
+				:is-open="isOpenRef"
+				:message="messageRef"
+				:duration="500000"
+				@onDidDismiss="setOpen(false)"
+			>
+			</ion-toast>
 		</ion-content>
 	</ion-page>
 </template>
@@ -149,11 +181,14 @@
 		IonButtons,
 		IonContent,
 		IonToolbar,
+		IonButton,
 		IonToggle,
 		IonHeader,
 		IonSelect,
 		IonLabel,
 		IonTitle,
+		IonInput,
+		IonToast,
 		IonPage,
 		IonCard,
 		IonList,
@@ -176,6 +211,7 @@
 	import { defineComponent, ref } from 'vue';
 	import { useRoute } from 'vue-router';
 	import moment from 'moment';
+	import axios from 'axios';
 
 	moment.locale('ru');
 
@@ -189,11 +225,14 @@
 			IonButtons,
 			IonContent,
 			IonToolbar,
+			IonButton,
 			IonToggle,
 			IonHeader,
 			IonSelect,
 			IonLabel,
 			IonTitle,
+			IonInput,
+			IonToast,
 			IonPage,
 			IonCard,
 			IonList,
@@ -206,10 +245,11 @@
 		},
 		setup() {
 			const route = useRoute();
+			const isEdit = ref(false);
 			const userRef = ref<any>({});
 			const collapsesRef = ref([
 				false,
-				false,
+				true,
 				false
 			]);
 			const pickerRef = ref<any>({
@@ -221,7 +261,9 @@
 					{
 						buttons: [{
 							text: 'Отмена',
-							handler: () => {return false},
+							handler: () => {
+								return false;
+							},
 						}, {
 							text: 'Сохранить',
 							handler: (result: any) => {
@@ -241,7 +283,9 @@
 					{
 						buttons: [{
 							text: 'Отмена',
-							handler: () => {return false},
+							handler: () => {
+								return false
+							},
 						}, {
 							text: 'Сохранить',
 							handler: (result: any) => {
@@ -260,11 +304,64 @@
 				],
 				shortNames: 'Янв, Фев, Мрт, Апр, Май, Июн, Июл, Авг, Сен, Окт, Нбр, Дек',
 			});
+			const isOpenRef = ref(false);
+			const isErrorRef = ref(false);
+			const messageRef = ref<string|null>(null);
+			const commentRef = ref<string|null>(null);
+
 			const interfaceOptions = {
 				header: 'Выберите мастера'
 			};
-			const setCollapse = (id: number, value: boolean) => {
-				collapsesRef.value[id] = value;
+
+			const setOpen = (state: boolean) => isOpenRef.value = state;
+			const setError = (state: boolean) => isErrorRef.value = state;
+			const setMessage = (state: string) => messageRef.value = state;
+			const setCollapse = (id: number, value: boolean) => collapsesRef.value[id] = value;
+
+			const makeRequest = (): void => {
+				const postData = {
+					user: userRef.value,
+					date: {
+						end: moment(pickerRef.value.current).toString(),
+						start: moment(pickerRef.value.start).format()
+					},
+					master: route.params.id,
+					comment: commentRef.value,
+				};
+				axios.post('applications/create', postData).then((response: any) => {
+					const { data } = response;
+
+					if (data && data.message) {
+						setMessage(data.message);
+					}
+					setError(false);
+					setOpen(true);
+				}).catch((error: any) => {
+					const { response } = error;
+
+					if (
+						response && 
+						response.data && 
+						response.data.message
+					) {
+						setMessage(response.data.message);
+					} else if (
+						response && 
+						response.data && 
+						response.data.messages
+					) {
+						for (const i in response.data.messages) {
+							console.log(i, response.data.messages[i][0]);
+
+							setMessage(response.data.messages[i][0]);
+						}
+						
+					} else if (error.message) {
+						setMessage(error.message);
+					}
+					setError(true);
+					setOpen(true);
+				});
 			};
 
 			const onChangeToggle = () => {
@@ -280,9 +377,16 @@
 			return {
 				call,
 				route,
+				isEdit,
 				userRef,
+				setOpen,
 				location,
+				isOpenRef,
 				pickerRef,
+				isErrorRef,
+				messageRef,
+				commentRef,
+				makeRequest,
 				setCollapse,
 				collapsesRef,
 				onChangeToggle,
@@ -305,10 +409,12 @@
 		--background: #cfe2e8;
 	}
 
-	.custom-card {
-		border-radius: 20px;
+	@media (prefers-color-scheme: dark) {
+		.add-content {
+			--background: #0c0c0c;
+		}
 	}
-		
+
 	.centered-content {
 		width: 100%;
 		height: 85vh;

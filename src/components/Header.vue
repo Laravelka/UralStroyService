@@ -2,18 +2,20 @@
 	<ion-header :translucent="true">
 		<ion-toolbar>
 			<ion-buttons slot="start">
-				<ion-back-button></ion-back-button>
+				<template v-if="isCustomBack && !isNotBack">
+					<ion-button @click="goBack">
+						<ion-icon slot="icon-only" :icon="chevronBackOutline"></ion-icon>
+					</ion-button>
+				</template>
+				<ion-back-button v-else-if="!isCustomBack && !isNotBack"></ion-back-button>
 			</ion-buttons>
 			<ion-title>{{ title }}</ion-title>
 		</ion-toolbar>
 	</ion-header>
 	<ion-content :fullscreen="true">
-		<ion-header collapse="condense">
-			<ion-toolbar>
-				<ion-title size="large">Новости</ion-title>
-			</ion-toolbar>
-		</ion-header>
-		<slot></slot>
+		<div class="tab-margin">
+			<slot></slot>
+		</div>
 	</ion-content>
 </template>
 
@@ -22,25 +24,57 @@
 		//IonPage,
 		IonHeader,
 		IonToolbar,
+		IonIcon,
 		IonTitle,
 		IonContent,
+		IonButton,
 		IonButtons,
 		IonBackButton,
 	} from '@ionic/vue';
-	import { defineComponent } from 'vue';
+	import { defineComponent, ref } from 'vue';
+	import { useRouter } from 'vue-router';
+	import { chevronBackOutline } from 'ionicons/icons';
 
 	export default defineComponent({
 		name: 'Header',
 		props: {
-			title: String
+			title: String,
+			isNotBack: Boolean,
+			isCustomBack: Boolean
 		},
 		components: {
 			IonHeader,
 			IonToolbar,
+			IonIcon,
 			IonTitle,
+			IonButton,
 			IonContent,
 			IonButtons,
 			IonBackButton,
 		},
+		setup() {
+			const isBack = ref(false);
+			const router = useRouter();
+			
+			const goBack = () => {
+				router.back();
+			};
+
+			router.afterEach(() => {
+				isBack.value = window.history.state.back ? true : false;
+			});
+
+			return {
+				goBack,
+				isBack,
+				chevronBackOutline
+			};
+		}
 	});
 </script>
+
+<style>
+	.tab-margin {
+		margin-bottom: 75px!important;
+	}
+</style>

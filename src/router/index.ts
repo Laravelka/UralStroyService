@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/auth/SignUp.vue')
 	},
 	{
+		path: '/error',
+		name: 'Error',
+		component: () => import('@/views/Error.vue')
+	},
+	{
 		path: '/:pathMatch(.*)*',
 		component: () => import('@/views/NotFound.vue')
 	},
@@ -49,6 +54,11 @@ const routes: Array<RouteRecordRaw> = [
 				component: () => import('@/views/Profile.vue')
 			},
 			{
+				path: 'settings',
+				name: 'Settings',
+				component: () => import('@/views/Settings.vue')
+			},
+			{
 				path: 'add',
 				name: 'Add',
 				component: () => import('@/views/AddApplication.vue'),
@@ -62,6 +72,11 @@ const routes: Array<RouteRecordRaw> = [
 				path: 'myUK',
 				name: 'MyUK',
 				component: () => import('@/views/MyUK.vue')
+			},
+			{
+				path: 'myApps',
+				name: 'MyApplications',
+				component: () => import('@/views/MyApplications.vue')
 			}
 		]
 	}
@@ -75,9 +90,9 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 	const token = localStorage.getItem('authToken');
 
-	if (to.meta.auth && token === null) {
+	if (to.meta.auth === true && token === null) {
 		next({name: 'SignIn'});
-	} else if (to.meta.auth == false && token !== null) {
+	} else if (to.meta.auth === false && token !== null) {
 		next({name: 'News'});
 	} else {
 		next();

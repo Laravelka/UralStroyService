@@ -1,11 +1,6 @@
 <template>
 	<ion-page>
-		<ion-header>
-			<ion-toolbar>
-				<ion-title>Новости</ion-title>
-			</ion-toolbar>
-		</ion-header>
-		<ion-content :fullscreen="true">
+		<Header is-not-back title="Новости">
 			<ion-header collapse="condense">
 				<ion-toolbar>
 					<ion-title size="large">Новости</ion-title>
@@ -14,18 +9,31 @@
 			<ion-refresher slot="fixed" pull-factor="0.5" pull-min="100" pull-max="200" @ionRefresh="doRefresh($event)">
 				<ion-refresher-content></ion-refresher-content>
 			</ion-refresher>
-			<div v-if="newsRef == null">
-				<ion-card>
-					<ion-card-content color="muted" class="ion-text-muted">
-						Пока что пусто
-					</ion-card-content>
-				</ion-card>
+			<div v-if="isLoadRef">
+				<ion-grid>
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-form">
+						<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3" class="ion-text-center">
+							<ion-spinner
+								name="dots"
+							></ion-spinner>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+			<div v-else-if="newsRef == null">
+				<ion-grid>
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-form">
+						<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3" class="ion-text-center">
+							<span color="muted" class="text-muted">Пока что пусто</span>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
 			</div>
 			<ion-card v-for="(news, i) in newsRef" v-bind:key="i">
 				<div
-					v-if="news.img"
+					v-if="news.image"
 					class="card-image"
-					:style="{backgroundImage: 'url(' + news.img + ')'}"
+					:style="{backgroundImage: 'url(' + news.image + ')'}"
 				></div>
 				<ion-card-header>
 					<ion-card-title>{{ news.title }}</ion-card-title>
@@ -43,7 +51,7 @@
 					v-bind:dataModal="dataModal"
 				></Modal>
 			</ion-modal>
-		</ion-content>
+		</Header>
 	</ion-page>
 </template>
 
@@ -51,17 +59,21 @@
 	import {
 		IonPage,
 		IonCard,
+		IonGrid,
+		IonRow,
+		IonCol,
+		IonSpinner,
 		IonCardTitle,
 		IonCardHeader,
 		IonCardContent,
 		IonHeader, 
 		IonToolbar, 
-		IonTitle, 
-		IonContent, 
+		IonTitle,
 		IonModal, 
 		IonRefresher,
 		IonRefresherContent,
 	} from '@ionic/vue';
+	import Header from '@/components/Header.vue';
 	import { defineComponent, ref } from 'vue';
 	import Modal from '@/components/Modal.vue';
 	import axios from 'axios';
@@ -71,15 +83,19 @@
 		components: { 
 			IonHeader, 
 			IonToolbar, 
-			IonTitle, 
-			IonContent, 
+			IonTitle,
 			IonPage,
 			IonCard,
+			IonGrid,
+			IonRow,
+			IonCol,
+			IonSpinner,
 			IonCardTitle,
 			IonCardHeader,
 			IonCardContent,
 			IonModal, 
 			Modal,
+			Header,
 			IonRefresher,
 			IonRefresherContent,
 		},
@@ -87,14 +103,19 @@
 			const newsRef   = ref<any>(null);
 			const dataModal = ref<any>({});
 			const isOpenRef = ref<boolean>(false);
-			
+			const isLoadRef = ref<boolean>(false);
+
 			const getNews = (callback: any = null) => {
+				if (!callback) isLoadRef.value = true;
+
 				axios.get('news/getAll').then((response: any) => {
 					const { data } = response;
 
 					newsRef.value = data.news;
 
 					if (callback) callback();
+
+					isLoadRef.value = false;
 				}).catch((error: any) => {
 					const { response } = error;
 
@@ -104,6 +125,8 @@
 						console.error(response);
 					}
 					if (callback) callback();
+
+					isLoadRef.value = false;
 				});
 			};
 
@@ -127,6 +150,7 @@
 			return {
 				newsRef,
 				isOpenRef, 
+				isLoadRef,
 				dataModal,
 				doRefresh,
 				closeModal, 
@@ -135,3 +159,10 @@
 		}
 	});
 </script>
+
+<style type="text/css">
+	.centered-form {
+		width: 100%;
+		height: 80vh;
+	}
+</style>

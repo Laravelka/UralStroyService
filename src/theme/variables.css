@@ -4,12 +4,12 @@ http://ionicframework.com/docs/theming/ */
 /** Ionic CSS Variables **/
 :root {
 	/** primary **/
-	--ion-color-primary: #3880ff;
-	--ion-color-primary-rgb: 56, 128, 255;
+	--ion-color-primary: #107191;
+	--ion-color-primary-rgb: 16,113,145;
 	--ion-color-primary-contrast: #ffffff;
-	--ion-color-primary-contrast-rgb: 255, 255, 255;
-	--ion-color-primary-shade: #3171e0;
-	--ion-color-primary-tint: #4c8dff;
+	--ion-color-primary-contrast-rgb: 255,255,255;
+	--ion-color-primary-shade: #0e6380;
+	--ion-color-primary-tint: #287f9c;
 
 	/** secondary **/
 	--ion-color-secondary: #3dc2ff;
@@ -196,7 +196,7 @@ http://ionicframework.com/docs/theming/ */
 
 		--ion-toolbar-background: #0d0d0d;
 
-		--ion-item-background: #000000;
+		--ion-item-background: #1c1c1d;
 
 		--ion-card-background: #1c1c1d;
 	}
@@ -259,6 +259,9 @@ http://ionicframework.com/docs/theming/ */
 .card-image {
 	height: 210px;
 	border-radius: 0.30rem;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .d-flex {
@@ -333,6 +336,34 @@ ion-tab-button {
 	--color-selected: var(--ion-color-krayola);
 }
 
+@media (prefers-color-scheme: dark) {
+	ion-tab-button {
+		--background: #19191a!important;
+	}
+
+	ion-tab-button#tab-button-add {
+		--background: transparent!important;
+	}
+
+	.md ion-tab-bar:before {
+		box-shadow: 0 370px 0 300px #19191a!important;
+		position: absolute;
+		margin-top: -30px;
+		padding: 69px;
+		border-radius: 100%;
+		content: '';
+	}
+
+	ion-tab-bar:before {
+		box-shadow: 0 370px 0 300px #19191a!important;
+		position: absolute;
+		margin-top: -30px;
+		padding: 63.5px;
+		border-radius: 100%;
+		content: '';
+	}
+}
+
 ion-tab-button::before {
 	background-color: transparent;
 	display: block;
@@ -392,4 +423,80 @@ ion-tab-button.right-tab {
 
 ion-button.ion-btn-round {
 	border-radius: 10px;
+}
+
+.validate-error {
+	color: var(--ion-color-danger);
+    padding: 5px 0;
+}
+
+
+ion-list {
+	background: rgba(0, 0, 0, 0)!important;
+}
+
+ion-item {
+	--background: rgba(0, 0, 0, 0.1)!important;
+}
+
+.avatar-edit {
+	right: -2px;
+	padding: 2px;
+	max-width: 22px;
+	max-height: 22px;
+	position: absolute;
+	background-color: rgb(25 25 26);
+	border-radius: 50%;
+}
+
+@media (prefers-color-scheme: light) {
+	ion-item {
+		--background: #fff!important;
+	}
+
+	.avatar-edit {
+		right: -2px;
+		padding: 2px;
+		max-width: 22px;
+		max-height: 22px;
+		position: absolute;
+		background-color: rgb(255 255 255 / 1);
+		border-radius: 50%;
+	}
+}
+
+.icon-position {
+	position: relative;
+	top: 2px;
+}
+
+.profile-avatar {
+	width: 75px;
+	height: 75px;
+	margin-right: 8px;
+	border-radius: 50%;
+	position: relative;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	box-shadow: rgb(0 0 0 / 0.2) 0px 2px 16px;
+	
+}
+
+.avatar-edit .icon {
+	width: 18px;
+	height: 18px;
+	display: inline-block;
+	background-size: cover;
+	background-image: url(/assets/icon/edit.svg);
+	filter: invert(17%) sepia(86%) saturate(5568%) hue-rotate(183deg) brightness(95%) contrast(87%);
+}
+
+.card-margin {
+	margin: 12px;
+}
+
+.justy-space-between {
+	display: flex;
+	justify-content: space-between;
 }

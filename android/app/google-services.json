@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "631848776050",
+    "project_id": "ural-stroy-service",
+    "storage_bucket": "ural-stroy-service.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631848776050:android:cb4d5b721bedbde226edeb",
+        "android_client_info": {
+          "package_name": "ru.laravelka.uralstroyservice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631848776050-hj8pqt9hbnl3k4gm0j4hu3gd1v3ori3m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWVbYU2qN7mVrcXj6YRoJKhYxJkrQcTVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631848776050-hj8pqt9hbnl3k4gm0j4hu3gd1v3ori3m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

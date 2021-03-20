@@ -5,64 +5,66 @@
 				<ion-row class="ion-justify-content-center ion-align-items-center centered-form">
 					<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3">
 						<ion-list>
-							<img src="/assets/img/logo.png">
-							<form>
-								<ion-item class="item-style-top" lines="full">
-									<ion-label
-										position="stacked"
-										size="large"
-									>Имя</ion-label>
-									<ion-input
-										required
-										autocomplete="name"
-										autocorrect="on"
-										placeholder="Введите имя"
-										v-model="formRef.name"
-									></ion-input>
-								</ion-item>
-								<ion-item lines="full">
-									<ion-label
-										position="stacked"
-										size="large"
-									>E-mail</ion-label>
-									<ion-input
-										required
-										autocomplete="email"
-										autocorrect="on"
-										placeholder="Введите e-mail"
-										v-model="formRef.email"
-									></ion-input>
-								</ion-item>
-								<ion-item class="item-style-bottom" lines="full">
-									<ion-label
-										position="stacked"
-										size="large"
-									>Пароль</ion-label>
-									<ion-input
-										required
-										autocomplete="current-password"
-										autocorrect="on"
-										placeholder="Введите пароль"
-										v-model="formRef.password"
-									></ion-input>
-								</ion-item>
-								<div class="padding-top-large ion-text-center">
-									<ion-button
-										color="krayola"
-										class="ion-color-krayola"
-										type="submit"
-										expand="full"
-										shape="round"
-										@click="signUp"
-									>
-										<ion-spinner
-											v-if="isPressedRef"
-											name="dots"
-										></ion-spinner>
-										<div v-else>Зарегистрироваться</div>
-									</ion-button>
-								</div>
-							</form>
+							<img src="/assets/img/logo.png" style="
+								min-height: 236px;
+							">
+							<ion-item class="item-style-top" lines="full">
+								<ion-label
+									position="stacked"
+									size="large"
+								>Имя</ion-label>
+								<ion-input
+									required
+									autocomplete="name"
+									autocorrect="on"
+									placeholder="Введите имя"
+									v-model="formRef.name"
+								></ion-input>
+							</ion-item>
+							<ion-item lines="full">
+								<ion-label
+									position="stacked"
+									size="large"
+								>E-mail</ion-label>
+								<ion-input
+									required
+									autocomplete="email"
+									autocorrect="on"
+									placeholder="Введите e-mail"
+									v-model="formRef.email"
+								></ion-input>
+								<small class="validate-error" v-if="messagesRef.email" color="danger">{{ messagesRef.email ?? '' }}</small>
+							</ion-item>
+							<ion-item class="item-style-bottom" lines="full">
+								<ion-label
+									position="stacked"
+									size="large"
+								>Пароль</ion-label>
+								<ion-input
+									required
+									autocomplete="current-password"
+									autocorrect="on"
+									placeholder="Введите пароль"
+									v-model="formRef.password"
+								></ion-input>
+								<small class="validate-error" v-if="messagesRef.password" color="danger">{{ messagesRef.password ?? '' }}</small>
+							</ion-item>
+							<div class="padding-top-large ion-text-center">
+								<ion-button
+									color="krayola"
+									class="ion-color-krayola"
+									type="submit"
+									expand="full"
+									shape="round"
+									@click="signUp($event)"
+								>
+									<ion-spinner
+										v-if="isPressedRef"
+										name="dots"
+									></ion-spinner>
+									<div v-else>Зарегистрироваться</div>
+								</ion-button>
+							</div>
 							<div
 								class="ion-text-center ion-margin-top"
 							>У вас уже есть аккаунт?</div>
@@ -80,6 +82,7 @@
 				</ion-row>
 			</ion-grid>
 			<ion-toast
+				:color="isErrorRef ? 'danger' : 'success'"
 				:is-open="isOpenRef"
 				:message="messageRef"
 				:duration="5000"
@@ -139,19 +142,26 @@
 				email: "",
 				password: ""
 			});
+
 			const isOpenRef    = ref(false);
-			const messageRef   = ref('');
+			const isErrorRef   = ref(false);
+			const messageRef   = ref<any>('');
+			const messagesRef  = ref<any>({});
 			const isPressedRef = ref(false);
 
 			const setOpen    = (state: boolean) => isOpenRef.value = state;
 			const setMessage = (state: string) => messageRef.value = state;
 			const setPressed = (state: boolean) => isPressedRef.value = state;
 
-			const signUp = () => {
+			const signUp = (event: any) => {
+				event.preventDefault();
+
 				setPressed(true);
 
 				axios.post('/sanctum/signup', formRef.value).then(response => {
 					const { data } = response;
+
+					isErrorRef.value = false;
 
 					localStorage.setItem('user', JSON.stringify(data.user));
 					localStorage.setItem('authToken', data.token);
@@ -169,23 +179,24 @@
 				}).catch(error => {
 					const { response } = error;
 
-					if (response.data.message) {
+					isErrorRef.value = true;
+
+					if (response && response.data.message) {
 						setOpen(true);
 						setMessage(response.data.message);
-					} else if (response.data.messages) {
-						let i = 0;
-						let message = '';
-						
+					} else if (response && response.data.messages) {
 						for (const key in response.data.messages) {
-							if (i == 0) message = response.data.messages[key][0];
-							i++;
+							messagesRef.value[key] = response.data.messages[key][0];
 						}
-						setMessage(message);
+					} else if (error.message) {
 						setOpen(true);
+						setMessage(error.message);
 					}
 					setPressed(false);
 
-					console.error('ErrorResponse:', response);
+					setTimeout(() => {
+						messagesRef.value = {};
+					}, 5000);
 				});
 			};
 
@@ -195,9 +206,11 @@
 				setOpen,
 				formRef,
 				isOpenRef,
-				messageRef,
+				isErrorRef,
 				setMessage,
 				setPressed,
+				messageRef,
+				messagesRef,
 				isPressedRef,
 
 			};

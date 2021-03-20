@@ -16,7 +16,7 @@
 					<ion-col>
 						<h1><ion-text color="danger">Упс, 404</ion-text></h1>
 						<p class="text-muted">Страница удалена или не найдена</p>
-						<ion-button color="danger" router-link="/">
+						<ion-button color="krayola" router-link="/">
 							<b>На главную</b>
 						</ion-button>
 					</ion-col>

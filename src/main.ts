@@ -39,6 +39,14 @@ const app = createApp(App)
 	.use(router)
 	.use(VueAxios, axios);
 
+app.directive('up-first-letter', {
+	beforeMount(el, binding, vnode) {
+		const string = vnode.el.innerText;
+
+		el.innerText = string.charAt(0).toUpperCase() + string.slice(1);
+	}
+});
+
 router.isReady().then(() => {
 	axios.interceptors.response.use(function (response) {
 		return response;
@@ -50,8 +58,16 @@ router.isReady().then(() => {
 			localStorage.removeItem('authToken');
 
 			router.replace({name: 'SignIn'});
+		} else if (error.message == 'Network Error') {
+			router.replace({
+				name: 'Error', 
+				params: {
+					code: 'network error',
+					message: 'Check your internet connection'
+				}
+			});
 		} else if (error.message) {
-			console.warn(JSON.stringify(error))
+			console.error(error.message, JSON.stringify(error))
 		}
 		return Promise.reject(error);
 	});

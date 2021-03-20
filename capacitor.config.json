@@ -1,6 +1,6 @@
 {
-  "appId": "ru.laravelka.uralstroi",
-  "appName": "UralStroi",
+  "appId": "ru.laravelka.uralstroyservice",
+  "appName": "UralStroyService",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "dist",

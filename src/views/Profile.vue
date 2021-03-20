@@ -1,6 +1,11 @@
 <template>
 	<ion-page>
-		<Header title="Профиль">
+		<Header is-custom-back title="Профиль">
+			<ion-header collapse="condense">
+                <ion-toolbar>
+                    <ion-title size="large">Профиль</ion-title>
+                </ion-toolbar>
+            </ion-header>
 			<ion-list>
 				<ion-card class="card-margin">
 					<ion-item lines="none">
@@ -29,7 +34,7 @@
 					</ion-item>
 				</ion-card>
 				<ion-card class="card-margin">
-					<ion-item lines="none">
+					<ion-item lines="none" router-link="/tabs/myApps">
 						<ion-label>Мои заявки</ion-label>
 						<ion-badge color="warning" slot="end">1</ion-badge>
 					</ion-item>
@@ -40,12 +45,12 @@
 					</ion-item>
 				</ion-card>
 				<ion-card class="card-margin">
-					<ion-item lines="none" router-link="/notifications">
+					<ion-item lines="none" router-link="/tabs/notifications">
 						Оповещения
 					</ion-item>
 				</ion-card>
 				<ion-card class="card-margin">
-					<ion-item lines="none" router-link="/settings">
+					<ion-item lines="none" router-link="/tabs/settings">
 						Настройки
 					</ion-item>
 				</ion-card>
@@ -56,6 +61,9 @@
 
 <script lang="ts">
 	import {
+		IonToolbar,
+		IonHeader,
+		IonTitle, 
 		IonCard,
 		IonPage,
 		IonList,
@@ -74,6 +82,9 @@
 	export default defineComponent({
 		name: 'Profile',
 		components: {
+			IonToolbar,
+			IonHeader,
+			IonTitle,
 			IonPage,
 			IonList,
 			IonItem,
@@ -117,9 +128,29 @@
 		--background: rgba(0, 0, 0, 0.1)!important;
 	}
 
+	.avatar-edit {
+		right: -2px;
+		padding: 2px;
+		max-width: 22px;
+		max-height: 22px;
+		position: absolute;
+		background-color: rgb(25 25 26);
+		border-radius: 50%;
+	}
+	
 	@media (prefers-color-scheme: light) {
 		ion-item {
 			--background: #fff!important;
+		}
+
+		.avatar-edit {
+			right: -2px;
+			padding: 2px;
+			max-width: 22px;
+			max-height: 22px;
+			position: absolute;
+			background-color: rgb(255 255 255 / 1);
+			border-radius: 50%;
 		}
 	}
 
@@ -139,16 +170,6 @@
 		background-position: center;
 		box-shadow: rgb(0 0 0 / 0.2) 0px 2px 16px;
 		
-	}
-
-	.avatar-edit {
-		right: -7px;
-		padding: 2px;
-		max-width: 22px;
-		max-height: 22px;
-		position: absolute;
-		background-color: rgb(255 255 255 / 1);
-		border-radius: 50% 0;
 	}
 
 	.avatar-edit .icon {

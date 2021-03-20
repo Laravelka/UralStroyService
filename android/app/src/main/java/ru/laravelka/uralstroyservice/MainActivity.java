@@ -1,4 +1,4 @@
-package ru.laravelka.uralstroi;
+package ru.laravelka.uralstroyservice;
 
 import android.os.Bundle;
 
