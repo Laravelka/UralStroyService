@@ -26,17 +26,13 @@
 							v-bind:style="{
 								backgroundImage: `url(${userRef.avatar ?? '/assets/img/avatar.svg'})`
 							}"
-						>
-							<div @click="onClickEdit" class="avatar-edit">
-								<span class="icon"></span>
-							</div>
-						</div>
+						></div>
 					</ion-item>
 				</ion-card>
 				<ion-card class="card-margin">
-					<ion-item lines="none" router-link="/tabs/myApps">
+					<ion-item lines="none" router-link="/tabs/applications">
 						<ion-label>Мои заявки</ion-label>
-						<ion-badge color="warning" slot="end">1</ion-badge>
+						<ion-badge v-if="(userRef.appsCount ?? 0) !== 0" color="warning" slot="end">{{ userRef.appsCount ?? 0 }}</ion-badge>
 					</ion-item>
 				</ion-card>
 				<ion-card class="card-margin">
@@ -70,11 +66,11 @@
 		IonItem,
 		IonBadge,
 		IonLabel,
-		// IonAvatar,
 		IonIcon,
 
 	} from '@ionic/vue';
-
+	import axios from 'axios';
+	import { useRouter } from 'vue-router';
 	import { defineComponent, ref } from 'vue';
 	import Header from '@/components/Header.vue';
 	import { location, call } from 'ionicons/icons';
@@ -91,12 +87,12 @@
 			IonCard,
 			IonBadge,
 			IonLabel,
-		// 	IonAvatar,
 			IonIcon,
 			Header,
 			
 		},
 		setup() {
+			const router = useRouter();
 			const userRef = ref<any>({});
 
 			const json = localStorage.getItem('user');
@@ -104,16 +100,31 @@
 			if (json !== null) {
 				userRef.value = JSON.parse(json);
 			}
+			
+			router.afterEach((to, from) => {
+				const json = localStorage.getItem('user');
 
-			const onClickEdit = () => {
-				console.log(123)
-			}
+				if (json !== null) {
+					userRef.value = JSON.parse(json);
+				}
+
+				axios.get('applications/getCount').then((response: any) => {
+					userRef.value.appsCount = response.data.count;
+				}).catch((error: any) => {
+					userRef.value.appsCount = 'error'
+				});
+			});
+
+			axios.get('applications/getCount').then((response: any) => {
+				userRef.value.appsCount = response.data.count;
+			}).catch((error: any) => {
+				userRef.value.appsCount = 'error'
+			});
 
 			return {
 				call,
 				userRef,
 				location,
-				onClickEdit,
 			}
 		}
 	});

@@ -16,7 +16,7 @@
 					<ion-col>
 						<h1><ion-text color="danger">Упс, 404</ion-text></h1>
 						<p class="text-muted">Страница удалена или не найдена</p>
-						<ion-button color="krayola" router-link="/">
+						<ion-button color="krayola" href="/">
 							<b>На главную</b>
 						</ion-button>
 					</ion-col>
@@ -28,10 +28,11 @@
 
 <script lang="ts">
 	import {
-		IonGrid,
 		IonRow,
 		IonCol,
 		IonPage,
+		IonText,
+		IonGrid,
 		IonHeader,
 		IonToolbar,
 		IonTitle,
@@ -43,10 +44,11 @@
 	export default defineComponent({
 		name: 'NotFound',
 		components: {
-			IonGrid,
 			IonRow,
 			IonCol,
 			IonPage,
+			IonGrid,
+			IonText,
 			IonTitle,
 			IonHeader,
 			IonButton,

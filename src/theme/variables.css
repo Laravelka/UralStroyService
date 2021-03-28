@@ -286,14 +286,6 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-tint: var(--ion-color-krayola-tint);
 }
 
-.text-krayola {
-	color: var(--ion-color-krayola);
-}
-
-.text-muted {
-	color: var(--ion-color-muted);
-}
-
 .item-style-top {
 	--border-radius: 10px 10px 0 0;
 }
@@ -499,4 +491,24 @@ ion-item {
 .justy-space-between {
 	display: flex;
 	justify-content: space-between;
+}
+
+.text-krayola {
+	color: var(--ion-color-krayola);
+}
+
+.text-muted {
+	color: var(--ion-color-muted);
+}
+
+.text-danger {
+	color: var(--ion-color-danger);
+}
+
+.text-warning {
+	color: var(--ion-color-warning);
+}
+
+.text-success {
+	color: var(--ion-color-success);
 }

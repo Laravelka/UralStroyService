@@ -30,17 +30,13 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
 	name: 'Modal',
-	props: {
-		dataModal: { type: Function, default: () => 1 }
-	},
-	methods: {
-		dismissModal() {
-			this.$emit('close-modal', true);
-		}
-	},
+	props: ['dataModal'],
+	emits: ['closeModal'],
 	components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon },
-	setup() {
-		return { closeOutline };
+	setup(props, { emit }) {
+		const dismissModal = () => emit('closeModal', true);
+
+		return { dismissModal, closeOutline };
 	}
 });
 </script>

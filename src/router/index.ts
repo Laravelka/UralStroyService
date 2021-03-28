@@ -74,9 +74,14 @@ const routes: Array<RouteRecordRaw> = [
 				component: () => import('@/views/MyUK.vue')
 			},
 			{
-				path: 'myApps',
-				name: 'MyApplications',
-				component: () => import('@/views/MyApplications.vue')
+				path: 'applications',
+				name: 'Applications',
+				component: () => import('@/views/Applications.vue')
+			},
+			{
+				path: 'applications/update/:id',
+				name: 'EditApp',
+				component: () => import('@/views/EditApp.vue')
 			}
 		]
 	}

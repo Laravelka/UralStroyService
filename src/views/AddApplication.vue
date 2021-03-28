@@ -164,7 +164,7 @@
 				:color="isErrorRef ? 'danger' : 'success'"
 				:is-open="isOpenRef"
 				:message="messageRef"
-				:duration="500000"
+				:duration="5000"
 				@onDidDismiss="setOpen(false)"
 			>
 			</ion-toast>

@@ -48,6 +48,19 @@ app.directive('up-first-letter', {
 });
 
 router.isReady().then(() => {
+	if (localStorage.getItem('authToken')) {
+		axios.get('user').then((response: any) => {
+			const { data } = response;
+
+			localStorage.setItem('user', JSON.stringify(data));
+		}).catch((error: any) => {
+			if (error.message) {
+				console.error(error.message, JSON.stringify(error));
+			} else {
+				console.error(error, JSON.stringify(error));
+			}
+		});
+	}
 	axios.interceptors.response.use(function (response) {
 		return response;
 	}, function (error) {
@@ -62,8 +75,8 @@ router.isReady().then(() => {
 			router.replace({
 				name: 'Error', 
 				params: {
-					code: 'network error',
-					message: 'Check your internet connection'
+					code: 'ошибка сети',
+					message: 'Проверьте соединение с интернетом'
 				}
 			});
 		} else if (error.message) {

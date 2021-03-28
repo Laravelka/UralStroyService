@@ -27,25 +27,52 @@
 								backgroundImage: `url(${userRef.avatar ?? '/assets/img/avatar.svg'})`
 							}"
 						>
-							<div @click="onClickEdit" class="avatar-edit">
-								<span class="icon"></span>
+							<div @click="onClickEdit" class="avatar-upload">
+								<input type="file" id="avatar" ref="avatar" @change="handleFileUpload" accept="image/*">
+								<template v-if="isAvatarLoadRef">
+									<ion-spinner name="circles"></ion-spinner>
+								</template>
+								<ion-icon v-else class="upload-icon" size="default" :md="cameraSharp" :ios="cameraOutline"></ion-icon>
 							</div>
 						</div>
 					</ion-item>
 					<ion-item lines="none">
-						<ion-label position="stacked">Имя и фамилия</ion-label>
-						<ion-input v-model="userRef.name" placeholder="Введите имя и фамилию"></ion-input>
+						<ion-label position="stacked">
+							<h2>Имя</h2>
+							<h3><p v-html="messagesRef.name" class="input-error"></p></h3>
+						</ion-label>
+						<ion-input v-model="userRef.name" placeholder="Введите имя"></ion-input>
 					</ion-item>
 					<ion-item lines="none">
-						<ion-label position="stacked">Телефон</ion-label>
+						<ion-label position="stacked">
+							<h2>Телефон</h2>
+							<h3><p v-html="messagesRef.phone" class="input-error"></p></h3>
+						</ion-label>
 						<ion-input v-model="userRef.phone" placeholder="Введите телефон"></ion-input>
 					</ion-item>
 					<ion-item lines="none">
-						<ion-label position="stacked">Адрес</ion-label>
+						<ion-label position="stacked">
+							<h2>E-mail</h2>
+							<h3><p v-html="messagesRef.email" class="input-error"></p></h3>
+						</ion-label>
+						<ion-input v-model="userRef.email" placeholder="Введите e-mail"></ion-input>
+					</ion-item>
+					<ion-item lines="none">
+						<ion-label position="stacked">
+							<h2>Адрес</h2>
+							<h3><p v-html="messagesRef.address" class="input-error"></p></h3>
+						</ion-label>
 						<ion-input v-model="userRef.address" placeholder="Введите адрес"></ion-input>
 					</ion-item>
 					<div class="ion-padding">
-						<ion-button shape="round" color="krayola">Сохранить</ion-button>
+						<ion-button @click="updateUser" expand="full" shape="round" color="krayola">
+							<template v-if="isLoadRef">
+								<ion-spinner name="dots"></ion-spinner>
+							</template>
+							<template v-else>
+								Сохранить
+							</template>
+						</ion-button>
 					</div>
 				</ion-card>
 			</ion-list>
@@ -55,7 +82,9 @@
 
 <script lang="ts">
 	import {
+		alertController,
 		IonToolbar,
+		IonSpinner,
 		IonHeader,
 		IonButton,
 		IonTitle, 
@@ -68,16 +97,17 @@
 		IonLabel,
 	//	IonAvatar,
 		IonIcon,
-
+		
 	} from '@ionic/vue';
-
+	import axios from 'axios';
 	import { defineComponent, ref } from 'vue';
 	import Header from '@/components/Header.vue';
-	import { location, call } from 'ionicons/icons';
+	import { location, call, cameraOutline, cameraSharp } from 'ionicons/icons';
 
 	export default defineComponent({
 		name: 'Settings',
 		components: {
+			IonSpinner,
 			IonToolbar,
 			IonHeader,
 			IonButton,
@@ -96,6 +126,9 @@
 		},
 		setup() {
 			const userRef = ref<any>({});
+			const isLoadRef = ref(false);
+			const messagesRef = ref<any>({});
+			const isAvatarLoadRef = ref(false);
 
 			const json = localStorage.getItem('user');
 
@@ -103,16 +136,152 @@
 				userRef.value = JSON.parse(json);
 			}
 
-			const onClickEdit = () => {
-				console.log(123)
-			}
+			const handleFileUpload = (event: any) => {
+				const formData = new FormData();
+
+				formData.append('avatar', event.target.files[0]);
+				
+				isAvatarLoadRef.value = true;
+
+				axios.post('user/updateAvatar', formData).then(async(response: any) => {
+					const { data } = response;
+
+					userRef.value = data.user;
+					localStorage.setItem('user', JSON.stringify(data.user));
+
+					isAvatarLoadRef.value = false;
+				}).catch(async(error: any) => {
+					const { response } = error;
+
+					isAvatarLoadRef.value = false;
+
+					if (response && response.data) {
+						const { data } = response;
+
+						if (data && data.message) {
+							const alert = await alertController
+								.create({
+									header: 'Ошибка',
+									message: `<p class="text-danger">${data.message}</p>`,
+								});
+							return alert.present();
+						} else if (data && data.messages) {
+							const alert = await alertController
+								.create({
+									header: 'Ошибка',
+									message: `<p class="text-danger">${data.messages.avatar[0]}</p>`,
+								});
+							return alert.present();
+						}
+					} else {
+						const alert = await alertController
+							.create({
+								header: 'Ошибка',
+								message: `<p class="text-danger">Неизвестная ошибка сервера.</p>`,
+							});
+						return alert.present();
+					}
+					
+				});
+			};
+
+			const updateUser = () => {
+				isLoadRef.value = true;
+
+				axios.post('user/update', userRef.value).then(async(response: any) => {
+					const { data } = response;
+
+					userRef.value = data.user;
+					localStorage.setItem('user', JSON.stringify(data.user));
+
+					isLoadRef.value = false;
+				}).catch(async(error: any) => {
+					const { response } = error;
+
+					if (response && response.data) {
+						const { data } = response;
+
+						isLoadRef.value = false;
+
+						if (data.message) {
+							const alert = await alertController
+								.create({
+									header: 'Ошибка',
+									message: `<p class="text-danger">${data.message}</p>`,
+								});
+							return alert.present();
+						} else if (data.messages) {
+							for(const i in data.messages) {
+								const item = data.messages[i];
+
+								messagesRef.value[i] = item[0];
+							}
+
+							setTimeout(() => {
+								messagesRef.value = {};
+							}, 6000);
+						}
+					} else {
+						const alert = await alertController
+							.create({
+								header: 'Ошибка',
+								message: `<p class="text-danger">Неизвестная ошибка сервера.</p>`,
+							});
+						return alert.present();
+					}
+				});
+			};
 
 			return {
 				call,
 				userRef,
 				location,
-				onClickEdit,
+				isLoadRef,
+				updateUser,
+				cameraSharp,
+				messagesRef,
+				cameraOutline,
+				isAvatarLoadRef,
+				handleFileUpload,
 			}
 		}
 	});
 </script>
+
+<style>
+	.avatar-upload {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		background: rgb(0 0 0 / 30%);
+		border-radius: 100%;
+		justify-content: center;
+		align-items: center;
+	}
+
+	input#avatar {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		z-index: 1;
+	}
+
+	.avatar-upload > ion-icon {
+		font-size: 25px!important;
+	}
+
+	ion-input {
+		font-size: 16px!important;
+	}
+
+	.input-error {
+		color: #eb445a;
+		padding: 0 4px;
+		font-size: small;
+	}
+</style>
