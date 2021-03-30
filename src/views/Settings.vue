@@ -32,37 +32,42 @@
 								<template v-if="isAvatarLoadRef">
 									<ion-spinner name="circles"></ion-spinner>
 								</template>
-								<ion-icon v-else class="upload-icon" size="default" :md="cameraSharp" :ios="cameraOutline"></ion-icon>
+								<ion-icon v-else color="white" class="upload-icon" size="default" :md="cameraSharp" :ios="cameraOutline"></ion-icon>
 							</div>
 						</div>
+					</ion-item>
+					<ion-item lines="full">
+						<ion-icon slot="start" :icon="moon"></ion-icon>
+						<ion-label>Темная тема</ion-label>
+						<ion-toggle v-model="isDarkRef" color="light" id="themeToggle" @ionChange="onChangeTheme" slot="end"></ion-toggle>
 					</ion-item>
 					<ion-item lines="none">
 						<ion-label position="stacked">
 							<h2>Имя</h2>
 							<h3><p v-html="messagesRef.name" class="input-error"></p></h3>
 						</ion-label>
-						<ion-input v-model="userRef.name" placeholder="Введите имя"></ion-input>
+						<ion-input class="custom" v-model="userRef.name" placeholder="Введите имя"></ion-input>
 					</ion-item>
 					<ion-item lines="none">
 						<ion-label position="stacked">
 							<h2>Телефон</h2>
 							<h3><p v-html="messagesRef.phone" class="input-error"></p></h3>
 						</ion-label>
-						<ion-input v-model="userRef.phone" placeholder="Введите телефон"></ion-input>
+						<ion-input class="custom" v-model="userRef.phone" placeholder="Введите телефон"></ion-input>
 					</ion-item>
 					<ion-item lines="none">
 						<ion-label position="stacked">
 							<h2>E-mail</h2>
 							<h3><p v-html="messagesRef.email" class="input-error"></p></h3>
 						</ion-label>
-						<ion-input v-model="userRef.email" placeholder="Введите e-mail"></ion-input>
+						<ion-input class="custom" v-model="userRef.email" placeholder="Введите e-mail"></ion-input>
 					</ion-item>
 					<ion-item lines="none">
 						<ion-label position="stacked">
 							<h2>Адрес</h2>
 							<h3><p v-html="messagesRef.address" class="input-error"></p></h3>
 						</ion-label>
-						<ion-input v-model="userRef.address" placeholder="Введите адрес"></ion-input>
+						<ion-input class="custom" v-model="userRef.address" placeholder="Введите адрес"></ion-input>
 					</ion-item>
 					<div class="ion-padding">
 						<ion-button @click="updateUser" expand="full" shape="round" color="krayola">
@@ -87,6 +92,7 @@
 		IonSpinner,
 		IonHeader,
 		IonButton,
+		IonToggle,
 		IonTitle, 
 	//	IonBadge,
 		IonInput,
@@ -102,7 +108,7 @@
 	import axios from 'axios';
 	import { defineComponent, ref } from 'vue';
 	import Header from '@/components/Header.vue';
-	import { location, call, cameraOutline, cameraSharp } from 'ionicons/icons';
+	import { location, call, moon, cameraOutline, cameraSharp } from 'ionicons/icons';
 
 	export default defineComponent({
 		name: 'Settings',
@@ -111,6 +117,7 @@
 			IonToolbar,
 			IonHeader,
 			IonButton,
+			IonToggle,
 			IonTitle,
 			IonInput,
 			IonPage,
@@ -127,6 +134,7 @@
 		setup() {
 			const userRef = ref<any>({});
 			const isLoadRef = ref(false);
+			const isDarkRef = ref<boolean>(false);
 			const messagesRef = ref<any>({});
 			const isAvatarLoadRef = ref(false);
 
@@ -231,15 +239,29 @@
 					}
 				});
 			};
+			const theme = localStorage.getItem('theme') ?? 'light';
+
+			isDarkRef.value = theme == 'dark';
+
+			const onChangeTheme = (event: any) => {
+				isDarkRef.value = event.detail.checked;
+
+				localStorage.setItem('theme', isDarkRef.value ? 'dark' : 'light');
+
+				document.body.classList.toggle('dark', isDarkRef.value);
+			};
 
 			return {
 				call,
+				moon,
 				userRef,
 				location,
+				isDarkRef,
 				isLoadRef,
 				updateUser,
 				cameraSharp,
 				messagesRef,
+				onChangeTheme,
 				cameraOutline,
 				isAvatarLoadRef,
 				handleFileUpload,
@@ -274,11 +296,7 @@
 	.avatar-upload > ion-icon {
 		font-size: 25px!important;
 	}
-
-	ion-input {
-		font-size: 16px!important;
-	}
-
+	
 	.input-error {
 		color: #eb445a;
 		padding: 0 4px;

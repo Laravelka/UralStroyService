@@ -11,7 +11,7 @@
 			</ion-refresher>
 			<div v-if="isLoadRef">
 				<ion-grid>
-					<ion-row class="ion-justify-content-center ion-align-items-center centered-form">
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-content">
 						<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3" class="ion-text-center">
 							<ion-spinner
 								name="dots"
@@ -22,7 +22,7 @@
 			</div>
 			<div v-else-if="applicationsRef == null">
 				<ion-grid>
-					<ion-row class="ion-justify-content-center ion-align-items-center centered-form">
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-content">
 						<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3" class="ion-text-center">
 							<span color="muted" class="text-muted">Пока что пусто</span>
 						</ion-col>
@@ -52,7 +52,7 @@
 				<ion-item lines="none">
 					<div style="width: 100%" class="justy-space-between">
 						<p class="text-muted">
-							<ion-icon class="icon-position" :icon="time"></ion-icon> <small>{{ moment(app.created_at).format('DD.MM.YYYY') }}</small>
+							<ion-icon class="custom-position" :icon="time"></ion-icon> <small>{{ moment(app.created_at).format('DD.MM.YYYY') }}</small>
 						</p>
 						<p class="text-muted">
 							<small v-if="app.is_rather" style="position: relative; top: 2px">Скорее</small>
@@ -226,14 +226,6 @@
 </script>
 
 <style type="text/css">
-	ion-list {
-		background: rgba(0, 0, 0, 0)!important;
-	}
-
-	ion-item {
-		--background: rgba(0, 0, 0, 0.1)!important;
-	}
-
 	.icon {
 		width: 18px;
 		height: 18px;
@@ -243,47 +235,12 @@
 		filter: invert(47%) sepia(56%) saturate(422%) hue-rotate(149deg) brightness(92%) contrast(91%);
 	}
 
-	@media (prefers-color-scheme: light) {
-		ion-item {
-			--background: #fff!important;
-		}
-	}
-
-	.icon-position {
-		position: relative;
-		top: 2px;
-	}
-
-	.bd-placeholder-img-lg {
-		font-size: calc(1.475rem + 2.7vw);
-	}
-
-	.bd-placeholder-img {
-		font-size: 1.125rem;
-		text-anchor: middle;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		user-select: none;
-	}
-
-	.img-fluid {
-		max-width: 100%;
-		height: auto;
-	}
-
 	ion-card .list-md {
 		padding: 0;
 	}
 
-	.icon-position {
+	.custom-position {
 		position: relative;
-		top: 3.5px;
+		top: 3.5px!important;
 	}
-
-	.centered-form {
-		width: 100%;
-		height: 80vh;
-	}
-
-	
 </style>

@@ -72,9 +72,3 @@
 		}
 	});
 </script>
-
-<style>
-	.tab-margin {
-		margin-bottom: 75px!important;
-	}
-</style>

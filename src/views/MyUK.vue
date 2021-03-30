@@ -8,20 +8,20 @@
             </ion-header>
 			<ion-card>
 				<ion-list>
-					<svg class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Фото УК" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Фото УК</text></svg>
+					<svg class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Фото УК" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Фото не указано</text></svg>
 					<ion-item lines="full">
 						<ion-label>
 							<p>
 								<ion-icon slot="start" class="icon-position" :icon="location"></ion-icon>
-								Улица, Дом, Квартира
+								{{ settingsRef.address ?? 'Не указано' }}
 							</p>
 							<p>
 								<ion-icon slot="start" class="icon-position" :icon="call"></ion-icon>
-								+79384767643
+								{{ settingsRef.phone ?? 'Не указано' }}
 							</p>
 							<p>
 								<ion-icon slot="start" class="icon-position" :icon="mail"></ion-icon>
-								example@gmail.com
+								{{ settingsRef.email ?? 'Не указано' }}
 							</p>
 						</ion-label>
 					</ion-item>
@@ -50,8 +50,8 @@
 		IonIcon,
 
 	} from '@ionic/vue';
-
-	import { defineComponent } from 'vue';
+	import axios from 'axios';
+	import { defineComponent, ref } from 'vue';
 	import Header from '@/components/Header.vue';
 	import { location, call, mail } from 'ionicons/icons';
 
@@ -70,40 +70,33 @@
 			Header,
 		},
 		setup() {
+			const settingsRef = ref<any>({});
+
 			const typeRequest = () => {
 				console.log(12345);
 			};
+
+			axios.get('/admin/settings').then((response: any) => {
+				const { data } = response;
+
+				settingsRef.value = data;
+			}).catch((error: any) => {
+				console.error(error);
+			});
 
 			return {
 				call,
 				mail,
 				location,
 				typeRequest,
+				settingsRef,
+
 			}
 		}
 	});
 </script>
 
 <style type="text/css">
-	ion-list {
-		background: rgba(0, 0, 0, 0)!important;
-	}
-
-	ion-item {
-		--background: rgba(0, 0, 0, 0.1)!important;
-	}
-
-	@media (prefers-color-scheme: light) {
-		ion-item {
-			--background: #fff!important;
-		}
-	}
-
-	.icon-position {
-		position: relative;
-		top: 2px;
-	}
-
 	.bd-placeholder-img-lg {
 		font-size: calc(1.475rem + 2.7vw);
 	}

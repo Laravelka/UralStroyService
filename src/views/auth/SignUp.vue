@@ -231,30 +231,12 @@
 		padding-right: var(--ion-padding, 12px);
 		padding-bottom: var(--ion-padding, 12px);
 	}
-
-	.padding-top-none {
-		padding-top: 0!important;
+	
+	body.dark ion-list {
+		background: rgba(0, 0, 0, 0)!important;
 	}
 
-	.padding-bottom-none {
-		padding-bottom: 0!important;
-	}
-
-	.padding-bottom-large {
-		padding-bottom: var(--ion-padding, 24px)!important;
-	}
-
-	.padding-top-large {
-		padding-top: var(--ion-padding, 24px)!important;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		ion-list {
-			background: rgba(0, 0, 0, 0)!important;
-		}
-
-		ion-item {
-			--background: rgb(0 0 0 / 30%)!important;
-		}
+	body.dark ion-item {
+		--background: rgb(0 0 0 / 30%)!important;
 	}
 </style>

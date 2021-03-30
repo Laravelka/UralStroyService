@@ -6,7 +6,7 @@
 
 <script lang="ts">
 	import axios from 'axios';
-	import { defineComponent } from 'vue';
+	import { defineComponent, onMounted } from 'vue';
 	import { IonApp, IonRouterOutlet } from '@ionic/vue';
 	import { 
 		Plugins,
@@ -24,6 +24,25 @@
 		setup() {
 			const { PushNotifications } = Plugins;
 			const pushToken = localStorage.getItem('pushToken') ?? false;
+
+			onMounted(() => {
+				const theme = localStorage.getItem('theme') ?? 'light';
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+				const newColorScheme = prefersDark.matches ? "dark" : "light";
+				
+				if (theme == newColorScheme) {
+					localStorage.setItem('theme', newColorScheme);
+					document.body.classList.toggle('dark', newColorScheme == 'dark');
+				}
+				prefersDark.addEventListener('change', e => {
+					const newColorScheme = e.matches ? "dark" : "light";
+
+					localStorage.setItem('theme', newColorScheme);
+
+					document.body.classList.toggle('dark', newColorScheme == 'dark');
+				});
+			});
+
 
 			PushNotifications.requestPermission().then((result: any) => {
 				if (result.granted) {

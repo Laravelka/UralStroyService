@@ -41,15 +41,15 @@
 						<div>
 							<ion-item lines="none">
 								<ion-label position="stacked"><ion-icon slot="start" class="icon-position" :icon="people"></ion-icon> Имя и фамилия</ion-label>
-								<ion-input v-model="applicationRef.user_name" placeholder="Введите имя и фамилию"></ion-input>
+								<ion-input class="custom" v-model="applicationRef.user_name" placeholder="Введите имя и фамилию"></ion-input>
 							</ion-item>
 							<ion-item lines="none">
 								<ion-label position="stacked"><ion-icon slot="start" class="icon-position" :icon="call"></ion-icon> Телефон</ion-label>
-								<ion-input v-model="applicationRef.user_phone" placeholder="Введите телефон"></ion-input>
+								<ion-input class="custom" v-model="applicationRef.user_phone" placeholder="Введите телефон"></ion-input>
 							</ion-item>
 							<ion-item lines="none">
 								<ion-label position="stacked"><ion-icon slot="start" class="icon-position" :icon="location"></ion-icon> Адрес</ion-label>
-								<ion-input v-model="applicationRef.user_address" placeholder="Введите адрес"></ion-input>
+								<ion-input class="custom" v-model="applicationRef.user_address" placeholder="Введите адрес"></ion-input>
 							</ion-item>
 						</div>
 						<ion-item lines="none">
@@ -62,13 +62,18 @@
 							<div class="date-block">
 								<ion-datetime 
 									display-format="От YYYY-DD MMM, HH:mm"
-									v-bind:min="applicationRef.start_date"
-									v-model="applicationRef.start_date"
+									v-bind:min="pickerRef.start"
+									v-model="pickerRef.start"
+									v-bind:picker-options="pickerRef.options[0]"
+									v-bind:month-short-names="pickerRef.shortNames"
 								></ion-datetime>
 								<ion-datetime 
 									display-format="До YYYY-DD MMM, HH:mm" 
-									v-model="applicationRef.end_date"
-									v-bind:min="applicationRef.start_date"
+									v-model="pickerRef.current"
+									v-bind:min="pickerRef.start"
+									v-bind:max="pickerRef.currentMax"
+									v-bind:picker-options="pickerRef.options[1]"
+									v-bind:month-short-names="pickerRef.shortNames"
 								></ion-datetime>
 							</div>
 						</div>
@@ -78,10 +83,17 @@
 						</ion-item>
 						<ion-item lines="none">
 							<ion-label position="stacked">Комментарий</ion-label>
-							<ion-textarea v-model="applicationRef.comment" placeholder="Опишите вашу проблему вкратце..."></ion-textarea>
+							<ion-textarea class="custom" v-model="applicationRef.comment" placeholder="Опишите вашу проблему вкратце..."></ion-textarea>
 						</ion-item>
 						<div class="ion-padding">
-							<ion-button shape="round" expand="full" color="krayola" @click="makeRequest">Сохранить</ion-button>
+							<ion-button @click="makeRequest" expand="full" shape="round" color="krayola">
+								<template v-if="isLoadButtonRef">
+									<ion-spinner name="dots"></ion-spinner>
+								</template>
+								<template v-else>
+									Сохранить
+								</template>
+							</ion-button>
 						</div>
 					</ion-card>
 				</ion-list>
@@ -167,92 +179,159 @@
 		},
 		setup() {
 			const { params } = useRoute();
-
-			const isOpenRef = ref(false);
+			
 			const isLoadRef = ref(true);
+			const isOpenRef = ref(false);
 			const isErrorRef = ref(false);
 			const messageRef = ref<any>(null);
 			const applicationRef = ref<any>(null);
-			
+			const isLoadButtonRef = ref(false);
+
+			const setOpen = (value: any) => isOpenRef.value = value;
+			const setError = (value: any) => isErrorRef.value = value;
+			const setMessage = (value: any) => messageRef.value = value;
+
+			const pickerRef = ref<any>({
+				start: moment().format(),
+				current: moment().format(),
+				isRather: false,
+				currentMax: moment().add(1, 'year').format(),
+				options: [
+					{
+						buttons: [{
+							text: 'Отмена',
+							handler: (e: any) => {
+								console.log('cancel', e);
+
+								return false;
+							},
+						}, {
+							text: 'Сохранить',
+							handler: (result: any) => {
+								const date = moment().toDate();
+								
+								date.setDate(result.day.value);
+								date.setHours(result.hour.value);
+								date.setMonth(result.month.value - 1);
+								date.setFullYear(result.year.value);
+								date.setMinutes(result.minute.value);
+
+								pickerRef.value.start = moment(date).toISOString();
+								pickerRef.value.current = moment(date).toISOString();
+
+								/*eslint camelcase: ["error", {properties: "never"}]*/
+								applicationRef.value.start_date = moment(date).toISOString();
+								applicationRef.value.end_date = moment(date).toISOString();
+							}
+						}]	
+					},
+					{
+						buttons: [{
+							text: 'Отмена',
+							handler: (e: any) => {
+								console.log('cancel', e);
+								
+								return false;
+							},
+						}, {
+							text: 'Сохранить',
+							handler: (result: any) => {
+								const date = moment().toDate();
+								
+								date.setDate(result.day.value);
+								date.setHours(result.hour.value);
+								date.setMonth(result.month.value - 1);
+								date.setFullYear(result.year.value);
+								date.setMinutes(result.minute.value);
+
+								pickerRef.value.current = moment(date).toISOString();
+
+								/*eslint camelcase: ["error", {properties: "never"}]*/
+								applicationRef.value.end_date = moment(date).toISOString();
+							}
+						}]	
+					}
+				],
+				shortNames: 'Янв, Фев, Мрт, Апр, Май, Июн, Июл, Авг, Сен, Окт, Нбр, Дек',
+			});
+
 			axios.get('applications/getById/' + params.id).then((response: any) => {
 				const { data } = response;
 
-				applicationRef.value = data.application;
+				applicationRef.value = data;
 				applicationRef.value.master = applicationRef.value.master.toString();
+				
+				pickerRef.value.start = moment(data.start_date).toISOString();
+				pickerRef.value.current = data.end_date ? moment(data.end_date).toISOString() : moment(data.start_date).toISOString();
+				pickerRef.value.currentMax = moment(pickerRef.value.current).add(1, 'year').toISOString();
 
 				isLoadRef.value = false;
 			}).catch((error: any): void => {
-				isLoadRef.value = false;
+				const { response } = error;
 
-				console.error(error);
+				isLoadRef.value = false;
+				
+				setMessage(response.data.message);
+				setError(true);
+				setOpen(true);
 			});
 
 			const makeRequest = () => {
-				console.log(applicationRef.value);
+				isLoadButtonRef.value = true;
+
+				axios.put('applications/update/' + params.id, applicationRef.value).then((response: any) => {
+					const { data } = response;
+
+					if (data && data.message) {
+						setMessage(data.message);
+					}
+					isLoadButtonRef.value = false;
+					setError(false);
+					setOpen(true);
+				}).catch((error: any) => {
+					const { response } = error;
+
+					if (
+						response && 
+						response.data && 
+						response.data.message
+					) {
+						setMessage(response.data.message);
+					} else if (
+						response && 
+						response.data && 
+						response.data.messages
+					) {
+						for (const i in response.data.messages) {
+							setMessage(response.data.messages[i][0]);
+						}
+						
+					} else if (error.message) {
+						setMessage(error.message);
+					}
+					isLoadButtonRef.value = false;
+					setError(true);
+					setOpen(true);
+				});
 			};
 
 			return {
 				call,
 				people,
+				setOpen,
+				setError,
 				location,
 				isOpenRef,
 				isLoadRef,
+				pickerRef,
 				isErrorRef,
 				messageRef,
+				setMessage,
 				makeRequest,
-				applicationRef
+				applicationRef,
+				isLoadButtonRef,
+
 			};
 		}
 	});
 </script>
-
-<style>
-	.custom-list {
-		background: transparent;
-	}
-
-	.add-content {
-		--background: #cfe2e8;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		.add-content {
-			--background: #0c0c0c;
-		}
-	}
-
-	.centered-content {
-		width: 100%;
-		height: 85vh;
-	}
-
-	.collapse {
-		visibility: hidden;
-		display: none;
-	}
-	.collapse.show {
-		visibility: visible;
-		display: block;
-	}
-	.collapsing {
-		position: relative;
-		height: 0;
-		overflow: hidden;
-		-webkit-transition-property: height, visibility;
-		transition-property: height, visibility;
-		-webkit-transition-duration: 0.35s;
-		transition-duration: 0.35s;
-		-webkit-transition-timing-function: ease;
-		transition-timing-function: ease;
-	}
-	.collapsing.width {
-		-webkit-transition-property: width, visibility;
-		transition-property: width, visibility;
-		width: 0;
-		height: auto;
-	}
-
-	.tab-margin {
-		margin-bottom: 85px!important;
-	}
-</style>

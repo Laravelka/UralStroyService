@@ -401,48 +401,11 @@
 </script>
 
 <style>
-	.custom-list {
-		background: transparent;
-	}
-
 	.add-content {
 		--background: #cfe2e8;
 	}
 
-	@media (prefers-color-scheme: dark) {
-		.add-content {
-			--background: #0c0c0c;
-		}
-	}
-
-	.centered-content {
-		width: 100%;
-		height: 85vh;
-	}
-
-	.collapse {
-		visibility: hidden;
-		display: none;
-	}
-	.collapse.show {
-		visibility: visible;
-		display: block;
-	}
-	.collapsing {
-		position: relative;
-		height: 0;
-		overflow: hidden;
-		-webkit-transition-property: height, visibility;
-		transition-property: height, visibility;
-		-webkit-transition-duration: 0.35s;
-		transition-duration: 0.35s;
-		-webkit-transition-timing-function: ease;
-		transition-timing-function: ease;
-	}
-	.collapsing.width {
-		-webkit-transition-property: width, visibility;
-		transition-property: width, visibility;
-		width: 0;
-		height: auto;
+	body.dark .add-content {
+		--background: #0c0c0c;
 	}
 </style>
